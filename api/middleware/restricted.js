@@ -5,11 +5,11 @@ const { JWT_SECRET } = require('../secrets');
 module.exports = (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
-    return next({ message: 'token required' });
+    return next({ message: "token required" });
   }
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if(err) {
-      next({ message: 'token invalid' });
+      next({ message: "token invalid" });
     } else {
       req.decoded = decoded;
       next();
