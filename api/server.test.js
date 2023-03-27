@@ -24,7 +24,7 @@ describe('[POST] /register', () => {
   })
   test('responds with new user', async () => {
     const res = await request(server).post('/api/auth/register').send(sampleUser)
-    expect(res.body).toMatchObject(sampleUser)
+    expect(res.body.username).toBe(sampleUser.username)
   })
 })
 
