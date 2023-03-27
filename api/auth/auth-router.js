@@ -7,15 +7,17 @@ const { checkUsernameFree, checkUsernameExists, checkBody } = require('../middle
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../secrets');
 
-router.post('/register', checkUsernameFree, checkBody, async (req, res, next) => {
+router.post('/register', checkUsernameFree, checkBody, async (req, res) => {
   const { username, password } = req.body;
   const hash = bcrypt.hashSync(password, 8);
   
   User.add({ username, password:hash })
     .then(user => {
-      res.status(201).json(user);
+      res.json(user);
     })
-    .catch(next);
+    .catch(() => {
+      res.status(500).json({ message: "internal server error" })
+    });
 
   /*
     IMPLEMENT
@@ -44,7 +46,7 @@ router.post('/register', checkUsernameFree, checkBody, async (req, res, next) =>
   */
 });
 
-router.post('/login', checkUsernameExists, checkBody, async (req, res, next) => {
+router.post('/login', checkUsernameExists, checkBody, async (req, res) => {
   try {
     const { username, password } = req.body;
     const [user] = await User.findBy({ username });
@@ -56,7 +58,7 @@ router.post('/login', checkUsernameExists, checkBody, async (req, res, next) => 
       res.status(400).json({ message: "invalid credentials" });
     }
   } catch (err) {
-    next(err)
+    res.status(500).json({ message: "internal server error" })
   }
   /*
     IMPLEMENT
