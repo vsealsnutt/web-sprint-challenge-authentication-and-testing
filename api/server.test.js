@@ -29,15 +29,17 @@ describe('[POST] /register', () => {
 })
 
 describe('[POST] /login', () => {
-  const sampleUser = { username: 'alice', password: 'madhatter' }
   test('responds with a welcome message and token on success', async () => {
-    const res = await (await request(server).post('/api/auth/login')).send(sampleUser)
+    const sampleUser = { username: 'alice', password: 'madhatter' }
+    await request(server).post('/api/auth/register').send(sampleUser)
+    const res = await request(server).post('/api/auth/login').send(sampleUser)
     expect(res.body).toHaveProperty('message')
     expect(res.body).toHaveProperty('token')
   })
   test('incorrect username gives an error', async () => {
-    await (await request(server).post('/api/auth/login')).send(sampleUser)
-    const res = await (await request(server).post('/api/auth/login')).send({ username: 'alic', password: sampleUser.password })
+    const sampleUser = { username: 'alice', password: 'madhatter' }
+    await request(server).post('/api/auth/register').send(sampleUser)
+    const res = await request(server).post('/api/auth/login').send({ username: 'alic', password: sampleUser.password })
     expect(res.body.message).toBe("invalid credentials")
   })
 })
