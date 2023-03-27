@@ -21,7 +21,17 @@ function checkUsernameExists(req, res, next) {
     }
 }
 
+function checkBody(req, res, next) {
+    const { username, password } = req.body;
+    if (!username || !password || !username.trim() || !password.trim()) {
+        next({ message: "username and password required" });
+    } else {
+        next();
+    }
+}
+
 module.exports = {
     checkUsernameFree,
-    checkUsernameExists
+    checkUsernameExists,
+    checkBody
 }
