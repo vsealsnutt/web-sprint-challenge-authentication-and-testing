@@ -1,6 +1,6 @@
-const db = require('../data/dbConfig');
-const request = require('supertest');
-const server = require('./server');
+const request = require('supertest')
+const server = require('./server')
+const db = require('../data/dbConfig')
 
 // Write your tests here
 test('sanity', () => {
@@ -8,24 +8,36 @@ test('sanity', () => {
 })
 
 beforeAll(async () => {
-  await db.migrate.rollback();
-  await db.migrate.latest();
+  await db.migrate.rollback()
+  await db.migrate.latest()
 })
 
 beforeEach(async () => {
-  await db.seed.run();
+  await db('users').truncate()
 })
 
 describe('[POST] /register', () => {
-  test('responds with status 201', async () => {
-    const res = await request(server).post('api/auth/register');
-    expect(res.status).toBe(201);
+  const sampleUser = { username: 'alice', password: 'madhatter' }
+  test('adds a user to the database', async () => {
+    await request(server).post('/api/auth/register').send(sampleUser)
+    expect(await db('users')).toHaveLength(1)
   })
-  test('adds new user to users table on success', async () => {
-    await (await request(server).post('/api/auth/register')).send()
-    const user = await db('users').first()
-    expect(user).toHaveProperty('id');
-    expect(user).toHaveProperty('username');
-    expect(user).toHaveProperty('password');
+  test('responds with new user', async () => {
+    const res = await request(server).post('/api/auth/register').send(sampleUser)
+    expect(res.body).toMatchObject(sampleUser)
+  })
+})
+
+describe('[POST] /login', () => {
+  const sampleUser = { username: 'alice', password: 'madhatter' }
+  test('responds with a welcome message and token on success', async () => {
+    const res = await (await request(server).post('/api/auth/login')).send(sampleUser)
+    expect(res.body).toHaveProperty('message')
+    expect(res.body).toHaveProperty('token')
+  })
+  test('incorrect username gives an error', async () => {
+    await (await request(server).post('/api/auth/login')).send(sampleUser)
+    const res = await (await request(server).post('/api/auth/login')).send({ username: 'alic', password: sampleUser.password })
+    expect(res.body.message).toBe("invalid credentials")
   })
 })

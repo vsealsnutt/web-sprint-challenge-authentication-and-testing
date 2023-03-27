@@ -2,20 +2,14 @@ const router = require('express').Router();
 
 const bcrypt = require('bcryptjs');
 const User = require('../users/users-model');
-const { checkUsernameFree, checkUsernameExists } = require('../middleware/auth-middleware');
+const { checkUsernameFree, checkUsernameExists, checkBody } = require('../middleware/auth-middleware');
 
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../secrets');
 
-router.post('/register', checkUsernameFree, async (req, res, next) => {
+router.post('/register', checkUsernameFree, checkBody, async (req, res, next) => {
   const { username, password } = req.body;
   const hash = bcrypt.hashSync(password, 8);
-
-  if(!password) {
-    next({ message: "username and password required" })
-  } else {
-    next();
-  }
   
   User.add({ username, password:hash })
     .then(user => {
@@ -50,7 +44,7 @@ router.post('/register', checkUsernameFree, async (req, res, next) => {
   */
 });
 
-router.post('/login', checkUsernameExists, (req, res, next) => {
+router.post('/login', checkUsernameExists, checkBody, (req, res, next) => {
   if (bcrypt.compareSync(req.body.password, req.user.password)) {
     const token = buildToken(req.user);
     res.json({
