@@ -43,3 +43,12 @@ describe('[POST] /login', () => {
     expect(res.body.message).toBe("invalid credentials")
   })
 })
+
+describe('[GET] /jokes', () => {
+  test('returns a status 200 when an authorized user logs in', async () => {
+    const sampleUser = { username: 'alice', password: 'madhatter' }
+    const res = await request(server).post('/api/auth/register').send(sampleUser)
+    await request(server).get('/api/jokes').set('authorization', `${res.body.token}`)
+    expect(res.status).toBe(200)
+  })
+})
