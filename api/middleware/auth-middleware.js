@@ -6,7 +6,7 @@ async function checkUsernameFree(req, res, next) {
         if (!user) {
             next();
         } else {
-            next({ status: 422, message: "username taken" })
+            res.status(422).json({ message: "username taken" })
         }
     } catch (err) {
         next(err);
@@ -24,7 +24,7 @@ function checkUsernameExists(req, res, next) {
 function checkBody(req, res, next) {
     const { username, password } = req.body;
     if (!username || !password || !username.trim() || !password.trim()) {
-        res.json({ message: "username and password required" });
+        res.status(400).json({ message: "username and password required" });
     } else {
         next();
     }
