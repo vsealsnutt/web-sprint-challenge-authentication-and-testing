@@ -6,7 +6,7 @@ async function checkUsernameFree(req, res, next) {
         if (!users.length) {
             next();
         } else {
-            next({ status: 422, message: 'Username taken' })
+            next({ status: 422, message: "username taken" })
         }
     } catch (err) {
         next(err);
@@ -15,7 +15,7 @@ async function checkUsernameFree(req, res, next) {
 
 function checkUsernameExists(req, res, next) {
     if (!req.body.username) {
-        res.status(401).json({ message: 'Invalid credentials' })
+        res.status(401).json({ message: "invalid credentials" })
     } else {
         next();
     }
