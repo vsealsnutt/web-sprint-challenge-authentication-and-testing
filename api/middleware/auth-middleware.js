@@ -6,10 +6,10 @@ async function checkUsernameFree(req, res, next) {
         if (!user) {
             next();
         } else {
-            res.status(422).json({ message: "username taken" })
+            return res.status(422).json({ message: "username taken" })
         }
     } catch (err) {
-        next(err);
+       return res.status(422).json({ message: "username taken" });
     }
 }
 
