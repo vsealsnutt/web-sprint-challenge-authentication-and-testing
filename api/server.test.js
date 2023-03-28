@@ -2,6 +2,8 @@ const request = require('supertest')
 const server = require('./server')
 const db = require('../data/dbConfig')
 
+const sampleUser = { username: 'alice', password: 'madhatter' }
+
 // Write your tests here
 test('sanity', () => {
   expect(true).toBe(true)
@@ -17,7 +19,6 @@ beforeEach(async () => {
 })
 
 describe('[POST] /register', () => {
-  const sampleUser = { username: 'alice', password: 'madhatter' }
   test('adds a user to the database', async () => {
     await request(server).post('/api/auth/register').send(sampleUser)
     expect(await db('users')).toHaveLength(1)
@@ -30,14 +31,12 @@ describe('[POST] /register', () => {
 
 describe('[POST] /login', () => {
   test('responds with a welcome message and token on success', async () => {
-    const sampleUser = { username: 'alice', password: 'madhatter' }
     await request(server).post('/api/auth/register').send(sampleUser)
     const res = await request(server).post('/api/auth/login').send(sampleUser)
     expect(res.body).toHaveProperty('message')
     expect(res.body).toHaveProperty('token')
   })
   test('incorrect username gives an error', async () => {
-    const sampleUser = { username: 'alice', password: 'madhatter' }
     await request(server).post('/api/auth/register').send(sampleUser)
     const res = await request(server).post('/api/auth/login').send({ username: 'alic', password: sampleUser.password })
     expect(res.body.message).toBe("invalid credentials")
@@ -46,9 +45,15 @@ describe('[POST] /login', () => {
 
 describe('[GET] /jokes', () => {
   test('returns a status 200 when an authorized user logs in', async () => {
-    const sampleUser = { username: 'alice', password: 'madhatter' }
     const res = await request(server).post('/api/auth/register').send(sampleUser)
+    await request(server).post('/api/auth/login').send(sampleUser)
     await request(server).get('/api/jokes').set('authorization', `${res.body.token}`)
     expect(res.status).toBe(200)
+  })
+  test('resturns list of jokes when an authorized user logs in', async () => {
+    await request(server).post('/api/auth/register').send(sampleUser)
+    const res = await request(server).post('/api/auth/login').send(sampleUser)
+    const data = await request(server).get('/api/jokes').set('Authorization', `${res.body.token}`)
+    expect(data.body).toHaveLength(3)
   })
 })
