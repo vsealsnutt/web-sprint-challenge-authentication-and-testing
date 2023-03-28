@@ -7,7 +7,7 @@ const { checkUsernameFree, checkUsernameExists, checkBody } = require('../middle
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../secrets');
 
-router.post('/register', checkUsernameFree, checkBody, async (req, res) => {
+router.post('/register', checkUsernameFree, checkBody, (req, res) => {
   const { username, password } = req.body;
   const hash = bcrypt.hashSync(password, 8);
   
